@@ -1,13 +1,13 @@
 {
   "name": "e-commerce-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "e-Commerce API - 2022 - Developed by Codatrix",
   "main": "app.js",
   "scripts": {
     "start": "nodemon app.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Ankur Sinha",
+  "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.5",
