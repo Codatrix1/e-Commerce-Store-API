@@ -1,12 +1,40 @@
-// env vars
+// env vars and async error
 require("dotenv").config();
+require("express-async-errors");
 
 // express setup
 const express = require("express");
 const app = express();
 
-// import Connect to DB
+// Rest of the packages
+const morgan = require("morgan");
+
+// import routers
+const authRouter = require("./routes/authRoutes");
+
+// import Connect to Database
 const connectDB = require("./db/connect");
+
+// Error handling middleware
+const notFoundMiddleware = require("./middleware/not-found");
+const errorHandlerMiddleware = require("./middleware/error-handler");
+
+app.use(morgan("tiny")); // logging middleware : for Debugging
+app.use(express.json()); // to access json data from req.body
+
+// Testing Route
+app.get("/", (req, res) => {
+  res.send("e-Commerce API");
+});
+
+//---------------------
+// Mounting the Routers
+//----------------------
+app.use("/api/v1/auth", authRouter);
+
+// invoking error handling middlewares
+app.use(notFoundMiddleware);
+app.use(errorHandlerMiddleware);
 
 //--------------------------
 // Setting up the Server
@@ -18,7 +46,7 @@ const start = async () => {
     await connectDB(process.env.MONGO_URI);
     // listen to the server
     app.listen(port, (req, res) => {
-      console.log(`Server is running on port ${port}...`);
+      console.log(`Server is listening on port ${port}...`);
     });
   } catch (error) {
     console.log(error);
