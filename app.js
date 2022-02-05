@@ -32,7 +32,8 @@ app.get("/", (req, res) => {
 //----------------------
 app.use("/api/v1/auth", authRouter);
 
-// invoking error handling middlewares
+// invoking error handling middlewares:
+// Very Important: Mind the ORDER of middleware placement
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
@@ -46,7 +47,9 @@ const start = async () => {
     await connectDB(process.env.MONGO_URI);
     // listen to the server
     app.listen(port, (req, res) => {
-      console.log(`Server is listening on port ${port}...`);
+      console.log(
+        `Connected to the Database: Server is listening on port ${port}...`
+      );
     });
   } catch (error) {
     console.log(error);

@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 
-// import controllers
+// import controller
 const authController = require("../controllers/authController");
 
 // setup dedicated routes
