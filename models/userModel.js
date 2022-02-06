@@ -15,6 +15,7 @@ const UserSchema = new mongoose.Schema({
 
   email: {
     type: String,
+    // Technically NOT a Validator: Just Checks for Indexes while Querying Data
     unique: true,
     required: [true, "Please provide email"],
     validate: {
@@ -39,7 +40,7 @@ const UserSchema = new mongoose.Schema({
 //---------------------------
 // Handling Password Hashing
 //---------------------------
-// IMP INFO: next() is NOT REQUIRED in latest Mongoose package V6
+// IMP INFO: next() is NOT REQUIRED in latest Mongoose package Version 6: From the Docs
 // Step 1: Adding salt and hashing w/ Pre-Hooks
 UserSchema.pre("save", async function () {
   const salt = await bcrypt.genSalt(12);
