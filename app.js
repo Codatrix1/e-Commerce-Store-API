@@ -22,7 +22,7 @@ const errorHandlerMiddleware = require("./middleware/error-handler");
 
 app.use(morgan("tiny")); // logging middleware : for Debugging
 app.use(express.json()); // to access json data from req.body
-app.use(cookieParser()); // to access cookie data from req.cookies
+app.use(cookieParser(process.env.JWT_SECRET)); // to access cookie data from req.cookies
 
 // Testing Route
 app.get("/", (req, res) => {
@@ -31,7 +31,8 @@ app.get("/", (req, res) => {
 
 // Testing Route: Cookie
 app.get("/api/v1", (req, res) => {
-  console.log(req.cookies);
+  // console.log(req.cookies);
+  console.log(req.signedCookies);
   res.send("e-Commerce API");
 });
 

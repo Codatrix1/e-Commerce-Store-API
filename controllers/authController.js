@@ -1,7 +1,7 @@
 const User = require("../models/userModel");
 const { StatusCodes } = require("http-status-codes");
 const CustomErrorAPI = require("../errors");
-const { createJWT } = require("../utils");
+const { attachCookiesToResponse } = require("../utils");
 
 //-----------------------------------------------------------------------
 // @desc  POST Request /api/v1/auth/register
@@ -26,16 +26,7 @@ const registerUser = async (req, res) => {
   // Create token with the below properties and sign the token:
   // We are passing the "role" too, as it will be needed while setting up "role based Authentication" in later stages
   const tokenUser = { name: user.name, userId: user._id, role: user.role };
-  const token = createJWT({ payload: tokenUser });
-
-  // Sending Cookie
-  res.cookie("token", token, {
-    expires: new Date(
-      Date.now() + process.env.JWT_COOKIE_LIFETIME * 24 * 60 * 60 * 1000
-    ),
-    // To prevent Cross-Site Scripting Attacks: to ensure that the Browser cannot modify the cookie in any condition
-    httpOnly: true,
-  });
+  attachCookiesToResponse({ res, user: tokenUser });
 
   // Send Response
   res.status(StatusCodes.CREATED).json({ user: tokenUser });
@@ -45,14 +36,47 @@ const registerUser = async (req, res) => {
 // @desc  GET Request /api/v1/auth/login
 // @access Public
 const loginUser = async (req, res) => {
-  res.send("login user");
+  const { email, password } = req.body;
+
+  // chcek for email, password
+  if (!email || !password) {
+    throw new CustomErrorAPI.BadRequestError(
+      "Please provide email and password"
+    );
+  }
+  // Find user in the DB
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new CustomErrorAPI.UnauthenticatedError("Invalid Credentials");
+  }
+
+  // If email found in DB, check the password with compare method defined in the user model
+  const isPasswordCorrect = await user.comparePassword(password);
+  if (!isPasswordCorrect) {
+    throw new CustomErrorAPI.UnauthenticatedError("Invalid Credentials");
+  }
+
+  // Create token with the below properties and sign the token:
+  // We are passing the "role" too, as it will be needed while setting up "role based Authentication" in later stages
+  const tokenUser = { name: user.name, userId: user._id, role: user.role };
+  attachCookiesToResponse({ res, user: tokenUser });
+
+  // Send Response
+  res.status(StatusCodes.OK).json({ user: tokenUser });
 };
 
 //--------------------------------------------------------------------------
 // @desc  GET Request /api/v1/auth/logout
 // @access Private
 const logoutUser = async (req, res) => {
-  res.send("logout user");
+  //to logout user: Remove the cookie from the request
+  res.cookie("token", "logout", {
+    httpOnly: true,
+    expires: new Date(Date.now()),
+  });
+
+  // json response for DEV Purposes Only
+  res.status(StatusCodes.OK).json({ msg: "User Successfully Logged Out!" });
 };
 
 // export
