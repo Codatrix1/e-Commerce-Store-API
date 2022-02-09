@@ -37,13 +37,13 @@ const registerUser = async (req, res) => {
 // @access Public
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
-
-  // chcek for email, password
+  // check for email, password
   if (!email || !password) {
     throw new CustomErrorAPI.BadRequestError(
       "Please provide email and password"
     );
   }
+
   // Find user in the DB
   const user = await User.findOne({ email });
   if (!user) {
@@ -61,7 +61,7 @@ const loginUser = async (req, res) => {
   const tokenUser = { name: user.name, userId: user._id, role: user.role };
   attachCookiesToResponse({ res, user: tokenUser });
 
-  // Send Response
+  // If every this is correct, we login the user and Send Response
   res.status(StatusCodes.OK).json({ user: tokenUser });
 };
 
@@ -74,6 +74,9 @@ const logoutUser = async (req, res) => {
     httpOnly: true,
     expires: new Date(Date.now()),
   });
+
+  // while in production
+  // res.send();
 
   // json response for DEV Purposes Only
   res.status(StatusCodes.OK).json({ msg: "User Successfully Logged Out!" });

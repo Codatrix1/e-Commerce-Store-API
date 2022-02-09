@@ -22,6 +22,8 @@ const attachCookiesToResponse = ({ res, user }) => {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_LIFETIME * 24 * 60 * 60 * 1000
     ),
+    // this code ensures, the cookie will be sent only through https:// while in production
+    // thus, we can still send cookies in development with http:// for testing
     secure: process.env.NODE_ENV === "production",
     signed: true,
   });
