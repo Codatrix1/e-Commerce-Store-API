@@ -5,24 +5,36 @@ const router = express.Router();
 // import controller
 const userController = require("../controllers/userController");
 
-// import middleware
-const { authenticateUser } = require("../middleware/authentication");
+// import authentication middleware
+const {
+  authenticateUser,
+  authorizePermissions,
+} = require("../middleware/authentication");
 
 //-------------
 // Routes Setup
 //-------------
 
-// @desc: Protected and Admin Only
-router.route("/").get(authenticateUser, userController.getAllUsers);
+// @desc: ❗ Protected and Admin Only: Middleware function really realy important
+router
+  .route("/")
+  .get(
+    authenticateUser,
+    authorizePermissions("admin"),
+    userController.getAllUsers
+  );
 
 // @desc: Protected
 // NOTE: Placement is EXTREMLY IMPORTANT while setting up the "/showMe","/updateUser" and "/updateUserPassword" route:
 // else it wont work as express will confuse this with the id param which is not what I want
-router.route("/showMe").get(userController.showCurrentUser);
+router.route("/showMe").get(authenticateUser, userController.showCurrentUser);
 router.route("/updateUser").patch(userController.updateUser);
-router.route("/updateUserPassword").patch(userController.updateUserPassword);
+router
+  .route("/updateUserPassword")
+  .patch(authenticateUser, userController.updateUserPassword);
 
 // Order of Placement of this function is very important
 router.route("/:id").get(authenticateUser, userController.getSingleUser);
 
+// Export router
 module.exports = router;

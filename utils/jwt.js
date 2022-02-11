@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 // Helper function to generate jwt and sign them by passing only the "payload" as an argunent
 // IMP: Here, function is setup to accept arguments as "Objects": that way I dont have to worry about the order of the args passed in
 
+//---------------------------------------------------- Script 1)
 const createJWT = ({ payload }) => {
   const token = jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_LIFETIME,
@@ -10,10 +11,12 @@ const createJWT = ({ payload }) => {
   return token;
 };
 
+//------------------------------------------------------ Script 2)
 const isTokenValid = ({ token }) => {
   return jwt.verify(token, process.env.JWT_SECRET);
 };
 
+//------------------------------------------------------ Script 3)
 const attachCookiesToResponse = ({ res, user }) => {
   const token = createJWT({ payload: user });
 
@@ -31,6 +34,7 @@ const attachCookiesToResponse = ({ res, user }) => {
   });
 };
 
+// Exports
 module.exports = {
   createJWT,
   isTokenValid,

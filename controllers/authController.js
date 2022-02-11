@@ -37,7 +37,7 @@ const registerUser = async (req, res) => {
 // @access Public
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
-  // check for email, password
+  // check for email, password in the body
   if (!email || !password) {
     throw new CustomErrorAPI.BadRequestError(
       "Please provide email and password"
@@ -50,7 +50,7 @@ const loginUser = async (req, res) => {
     throw new CustomErrorAPI.UnauthenticatedError("Invalid Credentials");
   }
 
-  // If email found in DB, check the password with compare method defined in the user model
+  // If email found in DB, check the inputted "password" with compare method defined in the user model
   const isPasswordCorrect = await user.comparePassword(password);
   if (!isPasswordCorrect) {
     throw new CustomErrorAPI.UnauthenticatedError("Invalid Credentials");
