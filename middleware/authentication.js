@@ -36,7 +36,7 @@ const authorizePermissions = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
       throw new CustomErrorAPI.UnauthorizedError(
-        "FORBIDDEN: You do not have permissions to perform this action"
+        "ACCESS DENIED: You do not have the permissions to perform this action"
       );
     }
     next();

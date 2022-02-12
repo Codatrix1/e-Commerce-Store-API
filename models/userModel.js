@@ -43,6 +43,12 @@ const UserSchema = new mongoose.Schema({
 // IMP INFO: next() is NOT REQUIRED in latest Mongoose package Version 6: From the Docs
 // Step 1: Adding salt and hashing w/ Pre-Hooks
 UserSchema.pre("save", async function () {
+  // console.log(this.modifiedPaths());
+  // console.log(this.isModified("name"));
+
+  // Below Line Ensures: DO NOT RUN THE PASSWORD HASHING AGAIN if "password" is not getting updated
+  if (!this.isModified("password")) return;
+
   const salt = await bcrypt.genSalt(12);
   this.password = await bcrypt.hash(this.password, salt);
 });

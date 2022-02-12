@@ -1,7 +1,7 @@
 const User = require("../models/userModel");
 const { StatusCodes } = require("http-status-codes");
 const CustomErrorAPI = require("../errors");
-const { attachCookiesToResponse } = require("../utils");
+const { attachCookiesToResponse, createTokenUser } = require("../utils");
 
 //-----------------------------------------------------------------------
 // @desc  POST Request /api/v1/auth/register
@@ -56,9 +56,10 @@ const loginUser = async (req, res) => {
     throw new CustomErrorAPI.UnauthenticatedError("Invalid Credentials");
   }
 
-  // Create token with the below properties and sign the token:
-  // We are passing the "role" too, as it will be needed while setting up "role based Authentication" in later stages
-  const tokenUser = { name: user.name, userId: user._id, role: user.role };
+  // Create token User with the helper function defined in utils
+  const tokenUser = createTokenUser(user);
+
+  // Sign the token by Attaching Cookie/Cookies
   attachCookiesToResponse({ res, user: tokenUser });
 
   // If every this is correct, we login the user and Send Response
