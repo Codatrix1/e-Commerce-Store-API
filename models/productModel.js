@@ -23,7 +23,7 @@ const ProductSchema = new mongoose.Schema(
       required: [true, "Please provide product description"],
       maxlength: [
         1000,
-        "Product description cannot be more than 1000 characters",
+        "Product description cannot be more than 2000 characters",
       ],
     },
 
@@ -49,6 +49,7 @@ const ProductSchema = new mongoose.Schema(
 
     colors: {
       type: [String],
+      default: ["#222"],
       required: true,
     },
 
@@ -76,6 +77,7 @@ const ProductSchema = new mongoose.Schema(
     // Parent Referencing: NOT written as an Array like Child Ref, but as an Object itself like other fields in Schema
     // User Model is the Parent here: Product Model is the Child
     // Eventually: Creating new products will be restricted to admin only
+    // Mind the property name here: "user": same must be used while creating a new product while we manually assign "user" equal to the user coming from req.body
     user: {
       type: mongoose.Types.ObjectId,
       ref: "User",

@@ -8,12 +8,14 @@ const app = express();
 
 // Rest of the packages
 const morgan = require("morgan");
+const colors = require("colors");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
 // import routers
 const authRouter = require("./routes/authRoutes");
 const userRouter = require("./routes/userRoutes");
+const productRouter = require("./routes/productRoutes");
 
 // import Connect to Database
 const connectDB = require("./db/connect");
@@ -44,6 +46,7 @@ app.get("/api/v1", (req, res) => {
 //----------------------
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/products", productRouter);
 
 // invoking error handling middlewares:
 // Very Important: Mind the ORDER of middleware placement
@@ -61,11 +64,12 @@ const start = async () => {
     // listen to the server
     app.listen(port, (req, res) => {
       console.log(
-        `Connected to the Database: Server is listening on port ${port}...`
+        `MongoDB Connected: Server is listening on port ${port}...`.cyan
+          .underline
       );
     });
   } catch (error) {
-    console.log(error);
+    console.log(`${error.name}, ${error.message}`.red.bold);
   }
 };
 start();
