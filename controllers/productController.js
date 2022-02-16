@@ -1,6 +1,7 @@
 const Product = require("../models/productModel");
 const { StatusCodes } = require("http-status-codes");
 const CustomErrorAPI = require("../errors");
+const path = require("path");
 
 // @ desc       Get all products
 // @ route      GET /api/v1/products
@@ -21,8 +22,7 @@ const getSingleProduct = async (req, res, next) => {
 
   if (!product) {
     throw new CustomErrorAPI.NotFoundError(
-      `No product found with the ID of ${productId}`,
-      404
+      `No product found with the ID of ${productId}`
     );
   }
 
@@ -74,8 +74,7 @@ const deleteProduct = async (req, res, next) => {
 
   if (!product) {
     throw new CustomErrorAPI.NotFoundError(
-      `No product found with the ID of ${productId}`,
-      404
+      `No product found with the ID of ${productId}`
     );
   }
 
@@ -88,7 +87,39 @@ const deleteProduct = async (req, res, next) => {
 // @route      POST /api/v1/products/uploadImage
 // @ access    Private
 const uploadImage = async (req, res, next) => {
-  res.send("Upload Product Image");
+  // console.log(req.files);
+
+  // 1) Check for req.files: Coming from "express-fileUpload":
+  if (!req.files) {
+    throw new CustomErrorAPI.BadRequestError("No image file uploaded");
+  }
+
+  // 2) get the image property from the object and assign to a variable to be used
+  const productImage = req.files.image;
+
+  // 3) Check for mimetype
+  if (!productImage.mimetype.startsWith("image")) {
+    throw new CustomErrorAPI.BadRequestError("Please upload an image file");
+  }
+
+  // 4) Check for allowed file size
+  const maxSize = 1024 * 1024;
+  if (!productImage.size > maxSize) {
+    throw new CustomErrorAPI.BadRequestError(
+      "Please upload image smaller than 1MB"
+    );
+  }
+
+  // 5) Image Path and re-naming the productImage name
+  const imagePath = path.join(
+    __dirname,
+    "../public/uploads/" + `${productImage.name}`
+  );
+
+  // 6) saving/Moving the image to our public/uploads folder using: "express-fileUpload" req.files
+  await productImage.mv(imagePath);
+
+  res.status(StatusCodes.OK).json({ image: `/uploads/${productImage.name}` });
 };
 
 //----------

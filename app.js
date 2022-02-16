@@ -11,6 +11,7 @@ const morgan = require("morgan");
 const colors = require("colors");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const fileUpload = require("express-fileupload");
 
 // import routers
 const authRouter = require("./routes/authRoutes");
@@ -28,6 +29,10 @@ app.use(morgan("tiny")); // logging middleware : for Debugging
 app.use(express.json()); // to access json data from req.body
 app.use(cookieParser(process.env.JWT_SECRET)); // to access cookie data from req.cookies and sign it
 app.use(cors()); // CORS Permission granted
+
+// Static Assets middleware and invoke
+app.use(express.static("./public"));
+app.use(fileUpload());
 
 // Testing Route
 app.get("/", (req, res) => {
