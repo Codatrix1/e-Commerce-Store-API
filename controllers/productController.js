@@ -6,14 +6,27 @@ const CustomErrorAPI = require("../errors");
 // @ route      GET /api/v1/products
 // @ access     Public
 const getAllProducts = async (req, res, next) => {
-  res.send("Get All Products");
+  const products = await Product.find({});
+
+  res.status(StatusCodes.OK).json({ results: products.length, products });
 };
 
 // @desc       Get single product
 // @route      GET /api/v1/products/:id
 // @ access    Public
 const getSingleProduct = async (req, res, next) => {
-  res.send("Get Single Product");
+  const { id: productId } = req.params;
+
+  const product = await Product.findOne({ _id: productId });
+
+  if (!product) {
+    throw new CustomErrorAPI.NotFoundError(
+      `No product found with the ID of ${productId}`,
+      404
+    );
+  }
+
+  res.status(StatusCodes.OK).json({ product });
 };
 
 // @desc       Create product
@@ -32,14 +45,43 @@ const createProduct = async (req, res, next) => {
 // @route      PATCH /api/v1/products/:id
 // @ access    Private
 const updateProduct = async (req, res, next) => {
-  res.send("Update Product");
+  // destructuring and re-assigning req.params manually
+  const { id: productId } = req.params;
+
+  const product = await Product.findOneAndUpdate({ _id: productId }, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!product) {
+    throw new CustomErrorAPI.NotFoundError(
+      `No product found with the ID of ${productId}`,
+      404
+    );
+  }
+
+  res.status(StatusCodes.OK).json({ success: true, product });
 };
 
 // @desc       Delete product
 // @route      DELETE /api/v1/products/:id
 // @ access    Private
 const deleteProduct = async (req, res, next) => {
-  res.send("Delete Product");
+  // destructuring and re-assigning req.params manually
+  const { id: productId } = req.params;
+
+  const product = await Product.findOneAndDelete({ _id: productId });
+
+  if (!product) {
+    throw new CustomErrorAPI.NotFoundError(
+      `No product found with the ID of ${productId}`,
+      404
+    );
+  }
+
+  await product.remove();
+
+  res.status(StatusCodes.OK).json({ msg: "Success! Product removed" });
 };
 
 // @desc       Add product image
