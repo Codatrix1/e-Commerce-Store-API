@@ -104,7 +104,7 @@ const uploadImage = async (req, res, next) => {
 
   // 4) Check for allowed file size
   const maxSize = 1024 * 1024;
-  if (!productImage.size > maxSize) {
+  if (productImage.size > maxSize) {
     throw new CustomErrorAPI.BadRequestError(
       "Please upload image smaller than 1MB"
     );
