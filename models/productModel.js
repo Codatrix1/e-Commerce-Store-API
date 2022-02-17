@@ -79,7 +79,7 @@ const ProductSchema = new mongoose.Schema(
     // Eventually: Creating new products will be restricted to admin only
     // Mind the property name here: "user": same must be used while creating a new product while we manually assign "user" equal to the user coming from req.body
     user: {
-      type: mongoose.Types.ObjectId,
+      type: mongoose.Schema.ObjectId,
       ref: "User",
       required: true,
     },
