@@ -83,7 +83,29 @@ const createReview = async (req, res, next) => {
 // @ Access    Private
 
 const updateReview = async (req, res, next) => {
-  res.send("Update Review");
+  const { id: reviewId } = req.params;
+  const { rating, title, comment } = req.body;
+
+  const review = await Review.findOne({ _id: reviewId });
+  if (!review) {
+    throw new CustomErrorAPI.NotFoundError(
+      `No review found with the ID of ${reviewId}`
+    );
+  }
+
+  // check for permissions
+  checkPermissions(req.user, review.user);
+
+  // Updating the properties manually
+  review.rating = rating;
+  review.title = title;
+  review.comment = comment;
+
+  // Instance method on the current document
+  await review.save();
+
+  // Response
+  res.status(StatusCodes.OK).json({ review });
 };
 
 //-------------------------------------------------
@@ -101,7 +123,7 @@ const deleteReview = async (req, res, next) => {
     );
   }
 
-  // WE check for permissions
+  // check for permissions
   checkPermissions(req.user, review.user);
 
   await review.remove();
