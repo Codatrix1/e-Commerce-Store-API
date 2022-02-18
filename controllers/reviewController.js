@@ -45,12 +45,13 @@ const getSingleReview = async (req, res, next) => {
     );
   }
 
-  const populatedReview = await review.populate({
-    path: "product",
-    select: "name company price",
-  });
+  // const populatedReview = await review.populate({
+  //   path: "product",
+  //   select: "name company price",
+  // });
 
-  res.status(StatusCodes.OK).json({ review: populatedReview });
+  // res.status(StatusCodes.OK).json({ review: populatedReview });
+  res.status(StatusCodes.OK).json({ review });
 };
 
 //------------------------------------------------

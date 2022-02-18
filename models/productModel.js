@@ -85,8 +85,26 @@ const ProductSchema = new mongoose.Schema(
     },
   },
 
-  { timestamps: true }
+  {
+    timestamps: true,
+    // Virtuals are document properties that you can get and set but that do not get persisted to MongoDB.
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+    // get me the docs where rating === 5
+    // match: { rating: 5 },
+  }
 );
+
+//---------------------------------------------------------------------------------------------
+// REVERSE Populate with virtuals: Displaying all the reviews as an Array in a each product
+//--------------------------------------------------------------------------------------------
+ProductSchema.virtual("reviews", {
+  foreignField: "product",
+  localField: "_id",
+  ref: "Review",
+  // This ensures that I am getting a list
+  justOne: false,
+});
 
 //---------------------
 // Create Model using the defined Schema and Export the Model
