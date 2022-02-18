@@ -92,7 +92,21 @@ const updateReview = async (req, res, next) => {
 // @ Access    Private
 
 const deleteReview = async (req, res, next) => {
-  res.send("Delete Review");
+  const { id: reviewId } = req.params;
+
+  const review = await Review.findOne({ _id: reviewId });
+  if (!review) {
+    throw new CustomErrorAPI.NotFoundError(
+      `No review found with the ID of ${reviewId}`
+    );
+  }
+
+  // WE check for permissions
+  checkPermissions(req.user, review.user);
+
+  await review.remove();
+
+  res.status(StatusCodes.OK).json({ msg: "Success! Review removed" });
 };
 
 //-----------
