@@ -74,6 +74,11 @@ const ProductSchema = new mongoose.Schema(
       default: 0,
     },
 
+    numOfReviews: {
+      type: Number,
+      default: 0,
+    },
+
     // Parent Referencing: NOT written as an Array like Child Ref, but as an Object itself like other fields in Schema
     // User Model is the Parent here: Product Model is the Child
     // Eventually: Creating new products will be restricted to admin only
@@ -98,7 +103,7 @@ const ProductSchema = new mongoose.Schema(
 // Cascade delete reviews when a product is deleted:
 // i.e. when a product is deleted, all the reviews associated with that specific product also gets deleted
 ProductSchema.pre("remove", async function (next) {
-  console.log(`Reviews being removed from the product: ${this._id}`);
+  // console.log(`Reviews being removed from the product: ${this._id}`);
   await this.model("Review").deleteMany({ product: this._id });
   next();
 });

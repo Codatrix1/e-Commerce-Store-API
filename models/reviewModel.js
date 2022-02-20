@@ -50,6 +50,25 @@ const ReviewSchema = new mongoose.Schema(
 // Solution: Each combination of Product and User is set to Unique
 ReviewSchema.index({ product: 1, user: 1 }, { unique: true });
 
+//-----------------------------
+// Aggregation Pipeline || :
+//-----------------------------
+
+// Static Method called on the Schema/Model itself
+ReviewSchema.statics.calculateAverageRating = async function (productId) {
+  console.log(productId);
+};
+
+ReviewSchema.post("save", async function () {
+  // console.log("Post save hook called");
+  await this.constructor.calculateAverageRating(this.product);
+});
+
+ReviewSchema.post("remove", async function () {
+  // console.log("Post remove hook called");
+  await this.constructor.calculateAverageRating(this.product);
+});
+
 //---------------------
 // Create Model using the defined Schema and Export the Model
 //---------------------
