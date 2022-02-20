@@ -95,6 +95,14 @@ const ProductSchema = new mongoose.Schema(
   }
 );
 
+// Cascade delete reviews when a product is deleted:
+// i.e. when a product is deleted, all the reviews associated with that specific product also gets deleted
+ProductSchema.pre("remove", async function (next) {
+  console.log(`Reviews being removed from the product: ${this._id}`);
+  await this.model("Review").deleteMany({ product: this._id });
+  next();
+});
+
 //---------------------------------------------------------------------------------------------
 // REVERSE Populate with virtuals: Displaying all the reviews as an Array in a each product
 //--------------------------------------------------------------------------------------------

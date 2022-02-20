@@ -87,6 +87,8 @@ const deleteProduct = async (req, res, next) => {
     );
   }
 
+  // in-order for cascade delete to work: we need to fire off the "pre remove" middleware from the Model: to delete all the reviews associated with the particular product
+  // We need this code
   await product.remove();
 
   res.status(StatusCodes.OK).json({ msg: "Success! Product removed" });
