@@ -4,6 +4,7 @@ const router = express.Router();
 
 // import controller
 const productController = require("../controllers/productController");
+const reviewController = require("../controllers/reviewController");
 
 // import authentication middleware
 const {
@@ -46,6 +47,8 @@ router
     [authenticateUser, authorizePermissions("admin")],
     productController.deleteProduct
   );
+
+router.route("/:id/reviews").get(productController.getSingleProductReviews);
 
 //---------------
 // Export Router

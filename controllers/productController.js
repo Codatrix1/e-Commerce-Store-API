@@ -1,20 +1,25 @@
 const Product = require("../models/productModel");
+const Review = require("../models/reviewModel");
 const { StatusCodes } = require("http-status-codes");
 const CustomErrorAPI = require("../errors");
 const path = require("path");
 
+//-------------------------------------------------------------
 // @ desc       Get all products
 // @ route      GET /api/v1/products
 // @ access     Public
+
 const getAllProducts = async (req, res, next) => {
   const products = await Product.find({});
 
   res.status(StatusCodes.OK).json({ results: products.length, products });
 };
 
+//------------------------------------------------------------
 // @desc       Get single product
 // @route      GET /api/v1/products/:id
 // @ access    Public
+
 const getSingleProduct = async (req, res, next) => {
   const { id: productId } = req.params;
 
@@ -41,9 +46,11 @@ const createProduct = async (req, res, next) => {
   res.status(StatusCodes.CREATED).json({ success: true, product });
 };
 
+//----------------------------------------------------------------
 // @desc       Update product
 // @route      PATCH /api/v1/products/:id
 // @ access    Private
+
 const updateProduct = async (req, res, next) => {
   // destructuring and re-assigning req.params manually
   const { id: productId } = req.params;
@@ -63,9 +70,11 @@ const updateProduct = async (req, res, next) => {
   res.status(StatusCodes.OK).json({ success: true, product });
 };
 
+//-------------------------------------------------------------------
 // @desc       Delete product
 // @route      DELETE /api/v1/products/:id
 // @ access    Private
+
 const deleteProduct = async (req, res, next) => {
   // destructuring and re-assigning req.params manually
   const { id: productId } = req.params;
@@ -83,9 +92,11 @@ const deleteProduct = async (req, res, next) => {
   res.status(StatusCodes.OK).json({ msg: "Success! Product removed" });
 };
 
+//--------------------------------------------------------
 // @desc       Add product image
 // @route      POST /api/v1/products/uploadImage
 // @ access    Private
+
 const uploadImage = async (req, res, next) => {
   // console.log(req.files);
 
@@ -122,6 +133,17 @@ const uploadImage = async (req, res, next) => {
   res.status(StatusCodes.OK).json({ image: `/uploads/${productImage.name}` });
 };
 
+//-------------------------------------------------
+// @ Desc      Get all reviews for a single product
+// @ Route     GET /api/v1/products/:id/reviews
+// @ Access    Public
+
+const getSingleProductReviews = async (req, res) => {
+  const { id: productId } = req.params;
+  const reviews = await Review.find({ product: productId });
+
+  res.status(StatusCodes.OK).json({ count: reviews.length, reviews });
+};
 //----------
 // Exports
 //----------
@@ -132,4 +154,5 @@ module.exports = {
   updateProduct,
   deleteProduct,
   uploadImage,
+  getSingleProductReviews,
 };
