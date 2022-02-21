@@ -34,3 +34,24 @@ MongoClient.connect(
     client.close();
   }
 );
+
+/*
+ * Requires the MongoDB Node.js Driver
+ * https://mongodb.github.io/node-mongodb-native
+ */
+
+const agg1 = [
+  {
+    $match: {
+      product: new ObjectId("62124ddc95e585224fef8cec"),
+    },
+  },
+  {
+    $group: {
+      _id: "$rating",
+      ratingCount: {
+        $sum: 1,
+      },
+    },
+  },
+];
