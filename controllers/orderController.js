@@ -9,6 +9,12 @@ const CustomErrorAPI = require("../errors");
 // authentication imports
 const { checkPermissions } = require("../utils");
 
+// fake Stripe API Helper function for Payments
+const fakeStripeAPI = async ({ amount, currency }) => {
+  const client_secret = "someRandomValue";
+  return { client_secret, amount };
+};
+
 //-------------------------------------------------------------
 // @ desc       Get all orders
 // @ route      POST /api/v1/orders
@@ -29,7 +35,11 @@ const createOrder = async (req, res, next) => {
     );
   }
 
-  // How to find product from the array? --> We use findOne() and pass in the product id. Now, where is the product that is sitting or sitting in this property? Correct. The product one. But it uses "await" and we cannot use forEach on my array or we cannot use "map". So what we will need to do is set up "for-of" loop, and that way we can run async-operation inside of the loop.
+  // How to find product from the array? -->
+  // We use findOne() and pass in the product id.
+  // Now, where is the product that is sitting or sitting in this property? Correct. The product one.
+  // But it uses "await" and we cannot use forEach on my array or we cannot use "map".
+  // So what we will need to do is set up "for-of" loop, and that way we can run async-operation inside of the loop.
 
   // Step 1) Constructing Empty Array
   let orderItems = [];
@@ -62,11 +72,33 @@ const createOrder = async (req, res, next) => {
     subTotal += item.amount * price;
   }
 
-  console.log(orderItems);
-  console.log(subTotal);
+  // console.log(orderItems);
+  // console.log(subTotal);
+
+  // 3) Calculating the grandTotal
+  const grandTotal = tax + shippingFee + subTotal;
+
+  // 4) Communicate with Stripe: get client secret
+  const paymentIntent = await fakeStripeAPI({
+    amount: grandTotal,
+    currency: "usd",
+  });
+  // 5) Finally create our order
+  const myOrder = await Order.create({
+    orderItems,
+    grandTotal,
+    subTotal,
+    tax,
+    shippingFee,
+    clientSecret: paymentIntent.client_secret,
+    // tying user with the order
+    user: req.user.userId,
+  });
 
   // Response
-  res.send("Create Order");
+  res
+    .status(StatusCodes.CREATED)
+    .json({ order: myOrder, clientSecret: myOrder.clientSecret });
 };
 
 //-------------------------------------------------------------
@@ -74,7 +106,8 @@ const createOrder = async (req, res, next) => {
 // @ route      GET /api/v1/orders
 // @ access     Private [Admin Only]
 const getAllOrders = async (req, res, next) => {
-  res.send("Get all orders");
+  const orders = await Order.find({});
+  res.status(StatusCodes.OK).json({ count: orders.length, orders });
 };
 
 //-------------------------------------------------------------
@@ -82,7 +115,20 @@ const getAllOrders = async (req, res, next) => {
 // @ route      GET /api/v1/orders/:id
 // @ access     Private
 const getSingleOrder = async (req, res, next) => {
-  res.send("Get Single Order");
+  const { id: orderId } = req.params;
+
+  const order = await Order.findOne({ _id: orderId });
+
+  if (!order) {
+    throw new CustomErrorAPI.NotFoundError(
+      `No order found with the ID of ${orderId}`
+    );
+  }
+
+  // Check For Permissions
+  checkPermissions(req.user, order.user);
+
+  res.status(StatusCodes.OK).json({ order });
 };
 
 //-------------------------------------------------------------
@@ -90,7 +136,9 @@ const getSingleOrder = async (req, res, next) => {
 // @ route      GET /api/v1/orders/showAllMyOrders
 // @ access     Private
 const getCurrentUserOrders = async (req, res, next) => {
-  res.send("Get Current User Orders");
+  const orders = await Order.find({ user: req.user.userId });
+
+  res.status(StatusCodes.OK).json({ count: orders.length, orders });
 };
 
 //-------------------------------------------------------------
@@ -98,7 +146,29 @@ const getCurrentUserOrders = async (req, res, next) => {
 // @ route      PATCH /api/v1/orders/:id
 // @ access     Private
 const updateOrder = async (req, res, next) => {
-  res.send("Update order");
+  const { id: orderId } = req.params;
+  const { paymentIntentId } = req.body;
+
+  const order = await Order.findOne({ _id: orderId });
+
+  if (!order) {
+    throw new CustomErrorAPI.NotFoundError(
+      `No order found with the ID of ${orderId}`
+    );
+  }
+
+  // Check For Permissions
+  checkPermissions(req.user, order.user);
+
+  // If everything checks out: Go ahead
+  order.paymentIntentId = paymentIntentId;
+  order.status = "paid";
+
+  // Save to DB
+  await order.save();
+
+  // Send Response
+  res.status(StatusCodes.OK).json({ order });
 };
 
 //--------

@@ -45,12 +45,12 @@ const OrderSchema = mongoose.Schema(
       required: true,
     },
 
-    subtotal: {
+    subTotal: {
       type: Number,
       required: true,
     },
 
-    total: {
+    grandTotal: {
       type: Number,
       required: true,
     },

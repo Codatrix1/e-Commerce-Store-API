@@ -11,8 +11,7 @@ const path = require("path");
 
 const getAllProducts = async (req, res, next) => {
   const products = await Product.find({});
-
-  res.status(StatusCodes.OK).json({ results: products.length, products });
+  res.status(StatusCodes.OK).json({ count: products.length, products });
 };
 
 //------------------------------------------------------------
