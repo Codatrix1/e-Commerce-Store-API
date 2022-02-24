@@ -54,7 +54,7 @@ app.use(
   })
 );
 
-app.use(morgan("tiny")); // logging middleware : for Debugging in dev mode
+// app.use(morgan("tiny")); // logging middleware : for Debugging in dev mode
 
 // Body parser: limiting data reading from body into req.body
 app.use(express.json({ limit: "10kb" }));
@@ -71,17 +71,19 @@ app.use(cookieParser(process.env.JWT_SECRET)); // to access cookie data from req
 app.use(express.static("./public"));
 app.use(fileUpload());
 
-// Testing Route
-app.get("/", (req, res) => {
-  res.send("e-Commerce API");
-});
+// For Development Testing
 
-// Testing Route: Cookie
-app.get("/api/v1", (req, res) => {
-  // console.log(req.cookies);
-  console.log(req.signedCookies); // Signed Cookies
-  res.send("e-Commerce API");
-});
+// // Testing Route
+// app.get("/", (req, res) => {
+//   res.send("e-Commerce API");
+// });
+
+// // Testing Route: Cookie
+// app.get("/api/v1", (req, res) => {
+//   // console.log(req.cookies);
+//   console.log(req.signedCookies); // Signed Cookies
+//   res.send("e-Commerce API");
+// });
 
 //---------------------
 // Mounting the Routers
