@@ -4,7 +4,8 @@
   "description": "e-Commerce API - 2022 - Developed by Codatrix",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "author": "Ankur Sinha",
   "license": "ISC",

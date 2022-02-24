@@ -12,6 +12,10 @@ const colors = require("colors");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const fileUpload = require("express-fileupload");
+const rateLimiter = require("express-rate-limit");
+const helmet = require("helmet");
+const xss = require("xss-clean");
+const mongoSanitize = require("express-mongo-sanitize");
 
 // import routers
 const authRouter = require("./routes/authRoutes");
@@ -27,10 +31,41 @@ const connectDB = require("./db/connect");
 const notFoundMiddleware = require("./middleware/not-found");
 const errorHandlerMiddleware = require("./middleware/error-handler");
 
-app.use(morgan("tiny")); // logging middleware : for Debugging
-app.use(express.json()); // to access json data from req.body
+//------------------------
+// 1) GLOBAL MIDDLEWARES
+//------------------------
+// Set Security HTTP Headers
+app.use(helmet());
+
+// CORS Permission granted
+app.use(cors());
+
+// Trust proxy to use in other applications
+app.set("trust proxy", 1);
+
+// Limit requests from the same IP Address:
+// a) against DDoS and Brute Force Attacks
+app.use(
+  rateLimiter({
+    max: 100,
+    windowMs: 15 * 60 * 1000,
+    message:
+      "Too many requests from this IP, please try again after 15 minutes!",
+  })
+);
+
+app.use(morgan("tiny")); // logging middleware : for Debugging in dev mode
+
+// Body parser: limiting data reading from body into req.body
+app.use(express.json({ limit: "10kb" }));
+
+// Data Sanitization: Cleaning all the data that is coming from some Malacious code
+// a) against NoSQL query Injection: MongoDB Operators that return "true" in all queries
+app.use(mongoSanitize());
+// b) against Server-Side XSS: Cross-Site Scripting Attacks: Injecting Malacious HTML + JavaScript Code
+app.use(xss());
+
 app.use(cookieParser(process.env.JWT_SECRET)); // to access cookie data from req.cookies and sign it
-app.use(cors()); // CORS Permission granted
 
 // Static Assets middleware and invoke
 app.use(express.static("./public"));
